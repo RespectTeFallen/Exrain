@@ -16,11 +16,14 @@ public class PlayerController : MonoBehaviour
     public AudioSource audioSource;
     public List<GameObject> Loadout;
     public GameObject bulletSpark;
+    public GameObject bulletSplatter;
     public Transform eyes;
+    public CircleCollider2D alertRadius;
+    public int layerMask = 9;
+    public int ignoreMask = 11;
 
     //Private Variables
     private Rigidbody2D rb;
-    private int layerMask = 1 << 9;
     private int openSide;
     private Vector2 movement;
     private LineRenderer lineR;
@@ -127,7 +130,7 @@ public class PlayerController : MonoBehaviour
 
     void Interact()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.up, interactRange, layerMask);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, transform.up, interactRange, 1 << layerMask);
         if (hit)
         {
             //Debug.Log(hit.transform.name);
@@ -160,14 +163,14 @@ public class PlayerController : MonoBehaviour
 
     void Fire()
     {
-        RaycastHit2D hit = Physics2D.Raycast(eyes.transform.position, transform.up, 1);
+        RaycastHit2D hit = Physics2D.Raycast(eyes.transform.position, transform.up, 1, ~(1 << ignoreMask));
         if (hit)
         {
             canShoot = true;
             singleFire = false;
             return;
         }
-        hit = Physics2D.Raycast(barrel.transform.position, transform.up, Mathf.Infinity);
+        hit = Physics2D.Raycast(barrel.transform.position, transform.up, Mathf.Infinity, ~(1 << ignoreMask));
         if (hit)
         {
             if (anim.GetInteger("weaponStance") != 0)
