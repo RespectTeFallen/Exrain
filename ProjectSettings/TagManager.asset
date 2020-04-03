@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags: []
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - World
+  - Object
+  - Player
+  - Above
+  - Door
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: World
+    uniqueID: 647630407
+    locked: 0
+  - name: Object
+    uniqueID: 2413984625
+    locked: 0
+  - name: Player
+    uniqueID: 3441195443
+    locked: 0
+  - name: Above
+    uniqueID: 2914334337
+    locked: 0
