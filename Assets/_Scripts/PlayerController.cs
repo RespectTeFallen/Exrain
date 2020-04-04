@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
+using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
@@ -15,16 +16,17 @@ public class PlayerController : MonoBehaviour
     public float shootSpeed = 0.5f;
     public AudioSource audioSource;
     public List<GameObject> Loadout;
-    public GameObject bulletSpark;
-    public GameObject bulletSplatter;
+    public List<GameObject> bulletSpark;
     public Transform eyes;
     public CircleCollider2D alertRadius;
     public int layerMask = 9;
     public int ignoreMask = 11;
+    public TextMeshProUGUI fps;
 
     //Private Variables
     private Rigidbody2D rb;
     private int openSide;
+    private float fpsDelay = 0;
     private Vector2 movement;
     private LineRenderer lineR;
     private int gunShot = 0;
@@ -53,6 +55,20 @@ public class PlayerController : MonoBehaviour
         //Set movement values based on WASD input
         movement.x = Input.GetAxis("Horizontal");
         movement.y = Input.GetAxis("Vertical");
+    }
+
+    void LateUpdate()
+    {
+        if (fpsDelay < 0.5f)
+        {
+            fpsDelay += 1 * Time.deltaTime;
+        }
+        else
+        {
+            int frame = (int)(1f / Time.unscaledDeltaTime);
+            fps.text = "FPS: " + frame;
+            fpsDelay = 0;
+        }
     }
 
     void keyInput()
@@ -181,7 +197,17 @@ public class PlayerController : MonoBehaviour
                     {
                         hit.transform.GetComponent<Health>().health -= 5;
                     }
-                    bulletShot(Loadout[1].GetComponent<WeaponStats>().sound, Loadout[1].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal);
+                    if (hit.transform.GetComponent<Health>() != null)
+                    {
+                        if (hit.transform.GetComponent<Health>().isAlive)
+                        {
+                            bulletShot(Loadout[1].GetComponent<WeaponStats>().sound, Loadout[1].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 1);
+                        }
+                    }
+                    else
+                    {
+                        bulletShot(Loadout[1].GetComponent<WeaponStats>().sound, Loadout[1].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 0);
+                    }
                 }
                 if (anim.GetInteger("weaponStance") == 1)
                 {
@@ -189,15 +215,25 @@ public class PlayerController : MonoBehaviour
                     {
                         hit.transform.GetComponent<Health>().health -= 5;
                     }
-                    bulletShot(Loadout[0].GetComponent<WeaponStats>().sound, Loadout[0].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal);
+                    if (hit.transform.GetComponent<Health>() != null)
+                    {
+                        if (hit.transform.GetComponent<Health>().isAlive)
+                        {
+                            bulletShot(Loadout[0].GetComponent<WeaponStats>().sound, Loadout[0].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 1);
+                        }
+                    }
+                    else
+                    {
+                        bulletShot(Loadout[0].GetComponent<WeaponStats>().sound, Loadout[0].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 0);
+                    }
                 }
             }
         }
     }
 
-    void bulletShot(AudioClip audioClip, float speed, Vector3 hit, Vector3 normal)
+    void bulletShot(AudioClip audioClip, float speed, Vector3 hit, Vector3 normal, int num)
     {
-        GameObject spark = Instantiate(bulletSpark);
+        GameObject spark = Instantiate(bulletSpark[num]);
         spark.transform.position = hit;
         spark.transform.rotation = Quaternion.FromToRotation(Vector3.forward, normal);
         spark.SetActive(true);
