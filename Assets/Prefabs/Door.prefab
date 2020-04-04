@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 8901178135259410415}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.625, y: 0, z: 0}
-  m_LocalScale: {x: 1.25, y: 1.98, z: 1}
+  m_LocalScale: {x: 1.25, y: 2, z: 1}
   m_Children:
   - {fileID: 8901178136952143001}
   m_Father: {fileID: 8901178136307590107}
@@ -149,8 +149,8 @@ MonoBehaviour:
   m_SelfShadows: 0
   m_ApplyToSortingLayers: 00000000470e9a268136b5ad
   m_ShapePath:
-  - {x: -1, y: -0.0625, z: 0}
-  - {x: 0, y: -0.0635, z: 0}
+  - {x: -1, y: -0.062, z: 0}
+  - {x: 0, y: -0.062, z: 0}
   - {x: 0.026670845, y: -0.059991438, z: 0}
   - {x: 0.051910598, y: -0.053518254, z: 0}
   - {x: 0.07241794, y: -0.043061435, z: 0}
@@ -161,11 +161,11 @@ MonoBehaviour:
   - {x: 0.08740402, y: 0.032626107, z: 0}
   - {x: 0.069262944, y: 0.046568535, z: 0}
   - {x: 0.03771325, y: 0.059017114, z: 0}
-  - {x: 0, y: 0.0625, z: 0}
-  - {x: -1, y: 0.0625, z: 0}
-  m_ShapePathHash: 166381694
+  - {x: 0, y: 0.062, z: 0}
+  - {x: -1, y: 0.062, z: 0}
+  m_ShapePathHash: -254907802
   m_Mesh: {fileID: 0}
-  m_InstanceId: -12648
+  m_InstanceId: 96918
 --- !u!1 &8901178136307590116
 GameObject:
   m_ObjectHideFlags: 0

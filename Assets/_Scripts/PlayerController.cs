@@ -22,6 +22,7 @@ public class PlayerController : MonoBehaviour
     public int layerMask = 9;
     public int ignoreMask = 11;
     public TextMeshProUGUI fps;
+    public List<AudioClip> soundEffects;
 
     //Private Variables
     private Rigidbody2D rb;
@@ -32,13 +33,15 @@ public class PlayerController : MonoBehaviour
     private int gunShot = 0;
     private bool canShoot = true;
     private bool singleFire = false;
+    private float bloom = 0;
+    private bool Sprinting = false;
     
     void Start()
     {
-        lineR = lineRenderer.GetComponent<LineRenderer>();
         rb = GetComponent<Rigidbody2D>();
 
         //LineRenderer setup
+        lineR = lineRenderer.GetComponent<LineRenderer>();
         lineR.enabled = false;
         lineR.useWorldSpace = true;
     }
@@ -59,6 +62,7 @@ public class PlayerController : MonoBehaviour
 
     void LateUpdate()
     {
+        //FPS counter
         if (fpsDelay < 0.5f)
         {
             fpsDelay += 1 * Time.deltaTime;
@@ -73,6 +77,7 @@ public class PlayerController : MonoBehaviour
 
     void keyInput()
     {
+        Sprinting = false;
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             anim.SetInteger("weaponStance", 1);
@@ -96,6 +101,12 @@ public class PlayerController : MonoBehaviour
         {
             Interact();
         }
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            Sprinting = true;
+        }
+
+        //Firing
         if (Input.GetKey(KeyCode.Mouse0) && canShoot && !singleFire)
         {
             if (anim.GetInteger("weaponStance") == 2)
@@ -128,6 +139,18 @@ public class PlayerController : MonoBehaviour
             Mathf.Lerp(0, movement.x * moveSpeed, 0.8f),
             Mathf.Lerp(0, movement.y * moveSpeed, 0.8f)
         );
+        if (rb.velocity != Vector2.zero)
+        {
+            if (Sprinting)
+            {
+                moveSpeed = 6;
+
+            }
+            else
+            {
+                moveSpeed = 4;
+            }
+        }
         cam .transform.position = new Vector3(transform.position.x, transform.position.y, cam.transform.position.z);
     }
 
@@ -179,14 +202,25 @@ public class PlayerController : MonoBehaviour
 
     void Fire()
     {
-        RaycastHit2D hit = Physics2D.Raycast(eyes.transform.position, transform.up, 1, ~(1 << ignoreMask));
+        //Shoot lock
+        float dist = Vector3.Distance(eyes.transform.position, barrel.transform.position);
+        RaycastHit2D hit = Physics2D.Raycast(eyes.transform.position, transform.up, dist, ~(1 << ignoreMask));
         if (hit)
         {
             canShoot = true;
             singleFire = false;
             return;
         }
-        hit = Physics2D.Raycast(barrel.transform.position, transform.up, Mathf.Infinity, ~(1 << ignoreMask));
+
+        //Bloom
+        Vector3 direction = cam.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        float change = Loadout[anim.GetInteger("weaponStance") - 1].GetComponent<WeaponStats>().bloom;
+        bloom = Random.Range(angle - change, angle + change) * Mathf.Deg2Rad;
+        Vector3 shootDir = new Vector3(Mathf.Cos(bloom), Mathf.Sin(bloom), -1f);
+
+        //Hitscan
+        hit = Physics2D.Raycast(barrel.transform.position, shootDir, Mathf.Infinity, ~(1 << ignoreMask));
         if (hit)
         {
             if (anim.GetInteger("weaponStance") != 0)
@@ -233,16 +267,22 @@ public class PlayerController : MonoBehaviour
 
     void bulletShot(AudioClip audioClip, float speed, Vector3 hit, Vector3 normal, int num)
     {
+        //Spark
         GameObject spark = Instantiate(bulletSpark[num]);
         spark.transform.position = hit;
         spark.transform.rotation = Quaternion.FromToRotation(Vector3.forward, normal);
         spark.SetActive(true);
         Destroy(spark, 0.5f);
 
+        //Audio
         audioSource.PlayOneShot(audioClip);
+
+        //Draw line
         lineR.SetPosition(0, barrel.transform.position);
         lineR.SetPosition(1, hit);
         lineR.enabled = true;
+
+        //Start loops
         StartCoroutine(bulletTrail());
         StartCoroutine(shootDelay(speed));
     }

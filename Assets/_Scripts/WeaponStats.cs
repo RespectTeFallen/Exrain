@@ -7,4 +7,5 @@ public class WeaponStats : MonoBehaviour
     public AudioClip sound;
     public float shootSpeed = 0.1f;
     public int ammoCapacity = 30;
+    public float bloom = 5f;
 }
