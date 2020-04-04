@@ -181,12 +181,7 @@ public class PlayerController : MonoBehaviour
                     {
                         hit.transform.GetComponent<Health>().health -= 5;
                     }
-                    bulletShot(Loadout[1].GetComponent<WeaponStats>().sound, Loadout[1].GetComponent<WeaponStats>().shootSpeed, hit.point);
-                    GameObject spark = Instantiate(bulletSpark);
-                    spark.transform.position = hit.point;
-                    spark.transform.rotation = Quaternion.FromToRotation(Vector3.forward, hit.normal);
-                    spark.SetActive(true);
-                    Destroy(spark, 0.5f);
+                    bulletShot(Loadout[1].GetComponent<WeaponStats>().sound, Loadout[1].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal);
                 }
                 if (anim.GetInteger("weaponStance") == 1)
                 {
@@ -194,19 +189,20 @@ public class PlayerController : MonoBehaviour
                     {
                         hit.transform.GetComponent<Health>().health -= 5;
                     }
-                    bulletShot(Loadout[0].GetComponent<WeaponStats>().sound, Loadout[0].GetComponent<WeaponStats>().shootSpeed, hit.point);
-                    GameObject spark = Instantiate(bulletSpark);
-                    spark.transform.position = hit.point;
-                    spark.transform.rotation = Quaternion.FromToRotation(Vector3.forward, hit.normal);
-                    spark.SetActive(true);
-                    Destroy(spark, 0.5f);
+                    bulletShot(Loadout[0].GetComponent<WeaponStats>().sound, Loadout[0].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal);
                 }
             }
         }
     }
 
-    void bulletShot(AudioClip audioClip, float speed, Vector3 hit)
+    void bulletShot(AudioClip audioClip, float speed, Vector3 hit, Vector3 normal)
     {
+        GameObject spark = Instantiate(bulletSpark);
+        spark.transform.position = hit;
+        spark.transform.rotation = Quaternion.FromToRotation(Vector3.forward, normal);
+        spark.SetActive(true);
+        Destroy(spark, 0.5f);
+
         audioSource.PlayOneShot(audioClip);
         lineR.SetPosition(0, barrel.transform.position);
         lineR.SetPosition(1, hit);
