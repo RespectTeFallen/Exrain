@@ -14,7 +14,8 @@ public class PlayerController : MonoBehaviour
     public GameObject lineRenderer;
     public Transform barrel;
     public float shootSpeed = 0.5f;
-    public AudioSource audioSource;
+    public AudioSource audioSourceWeapon;
+    public AudioSource audioSourcePlayer;
     public List<GameObject> Loadout;
     public List<GameObject> bulletSpark;
     public Transform eyes;
@@ -105,12 +106,12 @@ public class PlayerController : MonoBehaviour
         //Sprinting
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            audioSource.Stop();
+            audioSourcePlayer.Stop();
             Sprinting = true;
         }
         if (Input.GetKeyUp(KeyCode.LeftShift))
         {
-            audioSource.Stop();
+            audioSourcePlayer.Stop();
             Sprinting = false;
         }
 
@@ -149,24 +150,24 @@ public class PlayerController : MonoBehaviour
             if (Sprinting)
             {
                 moveSpeed = 5;
-                if (!audioSource.isPlaying)
+                if (!audioSourcePlayer.isPlaying)
                 {
-                    audioSource.clip = soundEffects[1];
-                    audioSource.Play();
+                    audioSourcePlayer.clip = soundEffects[1];
+                    audioSourcePlayer.Play();
                 }
             }
             else
             {
-                if (!audioSource.isPlaying)
+                if (!audioSourcePlayer.isPlaying)
                 {
-                    audioSource.clip = soundEffects[0];
-                    audioSource.Play();
+                    audioSourcePlayer.clip = soundEffects[0];
+                    audioSourcePlayer.Play();
                 }
             }
         }
         else
         {
-            audioSource.Stop();
+            audioSourcePlayer.Stop();
         }
         rb.velocity = new Vector2(
             Mathf.Lerp(0, movement.x * moveSpeed, 0.8f),
@@ -296,7 +297,7 @@ public class PlayerController : MonoBehaviour
         Destroy(spark, 0.5f);
 
         //Audio
-        audioSource.PlayOneShot(audioClip);
+        audioSourceWeapon.PlayOneShot(audioClip);
 
         //Draw line
         lineR.SetPosition(0, barrel.transform.position);

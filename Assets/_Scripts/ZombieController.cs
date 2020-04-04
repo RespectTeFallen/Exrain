@@ -24,6 +24,10 @@ public class ZombieController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (GetComponent<Health>().health <= 0)
+        {
+            Destroy(gameObject);
+        }
         if (trackPlayer)
         {
             Vector3 direction = player.transform.position - transform.position;
