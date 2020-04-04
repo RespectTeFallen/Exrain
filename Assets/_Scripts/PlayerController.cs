@@ -101,9 +101,17 @@ public class PlayerController : MonoBehaviour
         {
             Interact();
         }
-        if (Input.GetKey(KeyCode.LeftShift))
+
+        //Sprinting
+        if (Input.GetKeyDown(KeyCode.LeftShift))
         {
+            audioSource.Stop();
             Sprinting = true;
+        }
+        if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            audioSource.Stop();
+            Sprinting = false;
         }
 
         //Firing
@@ -135,22 +143,35 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate() 
     {
-        rb.velocity = new Vector2(
-            Mathf.Lerp(0, movement.x * moveSpeed, 0.8f),
-            Mathf.Lerp(0, movement.y * moveSpeed, 0.8f)
-        );
+        moveSpeed = 3.5f;
         if (rb.velocity != Vector2.zero)
         {
             if (Sprinting)
             {
-                moveSpeed = 6;
-
+                moveSpeed = 5;
+                if (!audioSource.isPlaying)
+                {
+                    audioSource.clip = soundEffects[1];
+                    audioSource.Play();
+                }
             }
             else
             {
-                moveSpeed = 4;
+                if (!audioSource.isPlaying)
+                {
+                    audioSource.clip = soundEffects[0];
+                    audioSource.Play();
+                }
             }
         }
+        else
+        {
+            audioSource.Stop();
+        }
+        rb.velocity = new Vector2(
+            Mathf.Lerp(0, movement.x * moveSpeed, 0.8f),
+            Mathf.Lerp(0, movement.y * moveSpeed, 0.8f)
+        );
         cam .transform.position = new Vector3(transform.position.x, transform.position.y, cam.transform.position.z);
     }
 
