@@ -16,10 +16,10 @@ TagManager:
   - World
   - Object
   - Player
-  - Zombie
+  - Ignore
   - Above
   - Door
-  - 
+  - Render
   - 
   - 
   - 
@@ -40,6 +40,9 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: BG
+    uniqueID: 782519833
     locked: 0
   - name: World
     uniqueID: 647630407

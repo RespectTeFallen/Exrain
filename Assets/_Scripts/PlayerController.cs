@@ -13,15 +13,15 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 1f;
     public GameObject lineRenderer;
     public Transform barrel;
+    public Transform eyes;
     public float shootSpeed = 0.5f;
     public AudioSource audioSourceWeapon;
     public AudioSource audioSourcePlayer;
     public List<GameObject> Loadout;
     public List<GameObject> bulletSpark;
-    public Transform eyes;
     public CircleCollider2D alertRadius;
     public int layerMask = 9;
-    public int ignoreMask = 11;
+    public int ignoreMask;
     public TextMeshProUGUI fps;
     public List<AudioClip> soundEffects;
 
@@ -46,8 +46,7 @@ public class PlayerController : MonoBehaviour
         lineR.enabled = false;
         lineR.useWorldSpace = true;
     }
-
-    // Update is called once per frame
+    
     void Update()
     {
         //Look towards mouse
@@ -55,10 +54,7 @@ public class PlayerController : MonoBehaviour
 
         //Get key input
         keyInput();
-
-        //Set movement values based on WASD input
-        movement.x = Input.GetAxis("Horizontal");
-        movement.y = Input.GetAxis("Vertical");
+        Move();
     }
 
     void LateUpdate()
@@ -78,6 +74,10 @@ public class PlayerController : MonoBehaviour
 
     void keyInput()
     {
+        //Set movement values based on WASD input
+        movement.x = Input.GetAxis("Horizontal");
+        movement.y = Input.GetAxis("Vertical");
+
         Sprinting = false;
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
@@ -109,24 +109,25 @@ public class PlayerController : MonoBehaviour
             audioSourcePlayer.Stop();
             Sprinting = true;
         }
-        if (Input.GetKeyUp(KeyCode.LeftShift))
+        else if (Input.GetKeyUp(KeyCode.LeftShift))
         {
             audioSourcePlayer.Stop();
             Sprinting = false;
+            moveSpeed = 3.5f;
         }
 
         //Firing
         if (Input.GetKey(KeyCode.Mouse0) && canShoot && !singleFire)
         {
-            if (anim.GetInteger("weaponStance") == 2)
-            {
-                singleFire = true;
-            }
             if (anim.GetInteger("weaponStance") != 0)
             {
+                if (anim.GetInteger("weaponStance") == 2)
+                {
+                    singleFire = true;
+                }
                 canShoot = false;
+                Fire();
             }
-            Fire();
         }
         if (!Input.GetKey(KeyCode.Mouse0))
         {
@@ -142,14 +143,13 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void FixedUpdate() 
+    void Move() 
     {
-        moveSpeed = 3.5f;
         if (rb.velocity != Vector2.zero)
         {
             if (Sprinting)
             {
-                moveSpeed = 5;
+                moveSpeed = 5.5f;
                 if (!audioSourcePlayer.isPlaying)
                 {
                     audioSourcePlayer.clip = soundEffects[1];
@@ -173,7 +173,7 @@ public class PlayerController : MonoBehaviour
             Mathf.Lerp(0, movement.x * moveSpeed, 0.8f),
             Mathf.Lerp(0, movement.y * moveSpeed, 0.8f)
         );
-        cam .transform.position = new Vector3(transform.position.x, transform.position.y, cam.transform.position.z);
+        cam.transform.position = new Vector3(transform.position.x, transform.position.y, cam.transform.position.z);
     }
 
     void faceMouse()
@@ -185,7 +185,6 @@ public class PlayerController : MonoBehaviour
             mousePosition.x - transform.position.x,
             mousePosition.y - transform.position.y
         );
-
         transform.up = direction;
     }
 
@@ -231,58 +230,64 @@ public class PlayerController : MonoBehaviour
         {
             canShoot = true;
             singleFire = false;
-            return;
         }
-
-        //Bloom
-        Vector3 direction = cam.ScreenToWorldPoint(Input.mousePosition) - transform.position;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        float change = Loadout[anim.GetInteger("weaponStance") - 1].GetComponent<WeaponStats>().bloom;
-        bloom = Random.Range(angle - change, angle + change) * Mathf.Deg2Rad;
-        Vector3 shootDir = new Vector3(Mathf.Cos(bloom), Mathf.Sin(bloom), -1f);
-
-        //Hitscan
-        hit = Physics2D.Raycast(barrel.transform.position, shootDir, Mathf.Infinity, ~(1 << ignoreMask));
-        if (hit)
+        else
         {
-            if (anim.GetInteger("weaponStance") != 0)
+            //Bloom
+            Vector3 direction = cam.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            float change = Loadout[anim.GetInteger("weaponStance") - 1].GetComponent<WeaponStats>().bloom;
+            bloom = Random.Range(angle - change, angle + change) * Mathf.Deg2Rad;
+            Vector3 shootDir = new Vector3(Mathf.Cos(bloom), Mathf.Sin(bloom), -1f);
+
+            //Hitscan
+            hit = Physics2D.Raycast(barrel.transform.position, shootDir, Mathf.Infinity, ~(1 << ignoreMask));
+            if (hit)
             {
-                if (anim.GetInteger("weaponStance") == 2)
+                if (anim.GetInteger("weaponStance") != 0)
                 {
-                    if (hit.transform.GetComponent<Health>() != null)
+                    if (anim.GetInteger("weaponStance") == 2)
                     {
-                        hit.transform.GetComponent<Health>().health -= 5;
-                    }
-                    if (hit.transform.GetComponent<Health>() != null)
-                    {
-                        if (hit.transform.GetComponent<Health>().isAlive)
+                        if (hit.transform.GetComponent<Health>() != null)
                         {
-                            bulletShot(Loadout[1].GetComponent<WeaponStats>().sound, Loadout[1].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 1);
+                            hit.transform.GetComponent<Health>().health -= Loadout[anim.GetInteger("weaponStance") - 1].GetComponent<WeaponStats>().damage;
+                        }
+                        if (hit.transform.GetComponent<Health>() != null)
+                        {
+                            if (hit.transform.GetComponent<Health>().isAlive)
+                            {
+                                bulletShot(Loadout[1].GetComponent<WeaponStats>().sound, Loadout[1].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 1);
+                            }
+                        }
+                        else
+                        {
+                            bulletShot(Loadout[1].GetComponent<WeaponStats>().sound, Loadout[1].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 0);
                         }
                     }
-                    else
+                    if (anim.GetInteger("weaponStance") == 1)
                     {
-                        bulletShot(Loadout[1].GetComponent<WeaponStats>().sound, Loadout[1].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 0);
-                    }
-                }
-                if (anim.GetInteger("weaponStance") == 1)
-                {
-                    if (hit.transform.GetComponent<Health>() != null)
-                    {
-                        hit.transform.GetComponent<Health>().health -= 5;
-                    }
-                    if (hit.transform.GetComponent<Health>() != null)
-                    {
-                        if (hit.transform.GetComponent<Health>().isAlive)
+                        if (hit.transform.GetComponent<Health>() != null)
                         {
-                            bulletShot(Loadout[0].GetComponent<WeaponStats>().sound, Loadout[0].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 1);
+                            hit.transform.GetComponent<Health>().health -= Loadout[anim.GetInteger("weaponStance") - 1].GetComponent<WeaponStats>().damage;
+                        }
+                        if (hit.transform.GetComponent<Health>() != null)
+                        {
+                            if (hit.transform.GetComponent<Health>().isAlive)
+                            {
+                                bulletShot(Loadout[0].GetComponent<WeaponStats>().sound, Loadout[0].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 1);
+                            }
+                        }
+                        else
+                        {
+                            bulletShot(Loadout[0].GetComponent<WeaponStats>().sound, Loadout[0].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 0);
                         }
                     }
-                    else
-                    {
-                        bulletShot(Loadout[0].GetComponent<WeaponStats>().sound, Loadout[0].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 0);
-                    }
                 }
+            }
+            else
+            {
+                canShoot = true;
+                singleFire = false;
             }
         }
     }

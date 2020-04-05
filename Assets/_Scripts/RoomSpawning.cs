@@ -8,31 +8,49 @@ public class RoomSpawning : MonoBehaviour
     //Public variables
     public int roomLevel = 1;
     public List<Transform> spawnPositions;
-    public GameObject Zombie;
+    public GameObject render;
+    public List<Collider2D> boundingBox;
 
     //Private variables
-    private int spawnLoop;
-    private int passes = 0;
+    private GameObject player;
 
-    // Start is called before the first frame update
     void Start()
     {
-        int spawnCount = Random.Range(1, 7);
-        Debug.Log(spawnCount);
-        for (int i = 0; i < spawnCount; i++)
+        player = GameObject.Find("player");
+        render.SetActive(false);
+    }
+
+    bool checkContain()
+    {
+        bool contains = false;
+        foreach (Collider2D col in boundingBox)
         {
-            for (int x = 0; x < spawnPositions.Count; x++)
+            if (col.bounds.Contains(player.transform.position))
             {
-                if (spawnCount > 0)
-                {
-                    GameObject zombo = Instantiate(Zombie);
-                    zombo.transform.position = spawnPositions[x].transform.position;
-                    zombo.transform.eulerAngles = new Vector3(0, 0, Random.Range(0, 360));
-                    zombo.SetActive(true);
-                    zombo.transform.position = new Vector3(zombo.transform.position.x + Random.Range(0.1f, 1), zombo.transform.position.y + Random.Range(0.1f, 1), zombo.transform.position.z);
-                    spawnCount--;
-                }
+                render.SetActive(true);
+                contains = true;
             }
+        }
+        if (!contains)
+        {
+            render.SetActive(false);
+        }
+        return contains;
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.name == "RenderDistance")
+        {
+            render.SetActive(true);
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.name == "RenderDistance")
+        {
+            render.SetActive(false);
         }
     }
 }
