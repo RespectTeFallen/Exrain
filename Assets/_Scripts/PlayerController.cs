@@ -7,6 +7,7 @@ using TMPro;
 public class PlayerController : MonoBehaviour
 {
     //Public Variables
+    public GameObject UI;
     public Animator anim;
     public Camera cam;
     public float interactRange = 1;
@@ -36,6 +37,7 @@ public class PlayerController : MonoBehaviour
     private bool singleFire = false;
     private float bloom = 0;
     private bool Sprinting = false;
+    private bool selected = false;
     
     void Start()
     {
@@ -79,6 +81,18 @@ public class PlayerController : MonoBehaviour
         movement.y = Input.GetAxis("Vertical");
 
         Sprinting = false;
+
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            if (!UI.activeSelf)
+            {
+                UI.SetActive(true);
+            }
+            else
+            {
+                UI.SetActive(false);
+            }
+        }
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             anim.SetInteger("weaponStance", 1);
@@ -119,7 +133,11 @@ public class PlayerController : MonoBehaviour
         //Firing
         if (Input.GetKey(KeyCode.Mouse0) && canShoot && !singleFire)
         {
-            if (anim.GetInteger("weaponStance") != 0)
+            if (UI.activeSelf)
+            {
+                return;
+            }
+            else if (anim.GetInteger("weaponStance") != 0 && canShoot && !singleFire)
             {
                 if (anim.GetInteger("weaponStance") == 2)
                 {
@@ -132,6 +150,7 @@ public class PlayerController : MonoBehaviour
         if (!Input.GetKey(KeyCode.Mouse0))
         {
             singleFire = false;
+            selected = false;
         }
     }
 
@@ -246,41 +265,23 @@ public class PlayerController : MonoBehaviour
             {
                 if (anim.GetInteger("weaponStance") != 0)
                 {
-                    if (anim.GetInteger("weaponStance") == 2)
+                    int stance = anim.GetInteger("weaponStance") - 1;
+
+                    if (hit.transform.GetComponent<Health>() != null)
                     {
-                        if (hit.transform.GetComponent<Health>() != null)
+                        hit.transform.GetComponent<Health>().health -= Loadout[stance].GetComponent<WeaponStats>().damage;
+                        if (hit.transform.GetComponent<Health>().isAlive)
                         {
-                            hit.transform.GetComponent<Health>().health -= Loadout[anim.GetInteger("weaponStance") - 1].GetComponent<WeaponStats>().damage;
-                        }
-                        if (hit.transform.GetComponent<Health>() != null)
-                        {
-                            if (hit.transform.GetComponent<Health>().isAlive)
-                            {
-                                bulletShot(Loadout[1].GetComponent<WeaponStats>().sound, Loadout[1].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 1);
-                            }
+                            bulletShot(Loadout[stance].GetComponent<WeaponStats>().sound, Loadout[stance].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 1);
                         }
                         else
                         {
-                            bulletShot(Loadout[1].GetComponent<WeaponStats>().sound, Loadout[1].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 0);
+                            bulletShot(Loadout[stance].GetComponent<WeaponStats>().sound, Loadout[stance].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 0);
                         }
                     }
-                    if (anim.GetInteger("weaponStance") == 1)
+                    else
                     {
-                        if (hit.transform.GetComponent<Health>() != null)
-                        {
-                            hit.transform.GetComponent<Health>().health -= Loadout[anim.GetInteger("weaponStance") - 1].GetComponent<WeaponStats>().damage;
-                        }
-                        if (hit.transform.GetComponent<Health>() != null)
-                        {
-                            if (hit.transform.GetComponent<Health>().isAlive)
-                            {
-                                bulletShot(Loadout[0].GetComponent<WeaponStats>().sound, Loadout[0].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 1);
-                            }
-                        }
-                        else
-                        {
-                            bulletShot(Loadout[0].GetComponent<WeaponStats>().sound, Loadout[0].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 0);
-                        }
+                        bulletShot(Loadout[stance].GetComponent<WeaponStats>().sound, Loadout[stance].GetComponent<WeaponStats>().shootSpeed, hit.point, hit.normal, 0);
                     }
                 }
             }
@@ -292,14 +293,19 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void bulletShot(AudioClip audioClip, float speed, Vector3 hit, Vector3 normal, int num)
+    void spark(int num, Vector3 hit, Vector3 normal)
     {
-        //Spark
         GameObject spark = Instantiate(bulletSpark[num]);
         spark.transform.position = hit;
         spark.transform.rotation = Quaternion.FromToRotation(Vector3.forward, normal);
         spark.SetActive(true);
         Destroy(spark, 0.5f);
+    }
+
+    void bulletShot(AudioClip audioClip, float speed, Vector3 hit, Vector3 normal, int num)
+    {
+        //Spark
+        spark(num, hit, normal);
 
         //Audio
         audioSourceWeapon.PlayOneShot(audioClip);
