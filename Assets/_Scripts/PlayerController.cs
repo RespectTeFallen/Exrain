@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
 {
     //Public Variables
     public GameObject UI;
+    public GameObject uiPlayer;
     public Animator anim;
     public Camera cam;
     public float interactRange = 1;
@@ -34,11 +35,11 @@ public class PlayerController : MonoBehaviour
     private LineRenderer lineR;
     private int gunShot = 0;
     private bool canShoot = true;
-    private bool singleFire = false;
+    private bool click = false;
     private float bloom = 0;
     private bool Sprinting = false;
     private bool selected = false;
-    
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -76,23 +77,26 @@ public class PlayerController : MonoBehaviour
 
     void keyInput()
     {
-        //Set movement values based on WASD input
-        movement.x = Input.GetAxis("Horizontal");
-        movement.y = Input.GetAxis("Vertical");
 
         Sprinting = false;
 
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetButtonDown("Inventory"))
         {
-            if (!UI.activeSelf)
-            {
-                UI.SetActive(true);
-            }
-            else
-            {
-                UI.SetActive(false);
-            }
+            UI.SetActive(!UI.activeSelf);
         }
+        if (!UI.activeSelf)
+        {
+            //Set movement values based on WASD input
+            movement.x = Input.GetAxis("Horizontal");
+            movement.y = Input.GetAxis("Vertical");
+            Inventory.updateInventory = false;
+        }
+        else
+        {
+            movement = Vector2.zero;
+            Inventory.updateInventory = true;
+        }
+
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             anim.SetInteger("weaponStance", 1);
@@ -120,6 +124,7 @@ public class PlayerController : MonoBehaviour
         //Sprinting
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
+            Inventory.instance.AddItem("nearby", new Item("ammo", 3, "gun ammo", 10, Item.ItemType.Equipment));
             audioSourcePlayer.Stop();
             Sprinting = true;
         }
@@ -131,17 +136,17 @@ public class PlayerController : MonoBehaviour
         }
 
         //Firing
-        if (Input.GetKey(KeyCode.Mouse0) && canShoot && !singleFire)
+        if (Input.GetKey(KeyCode.Mouse0) && !click)
         {
             if (UI.activeSelf)
             {
                 return;
             }
-            else if (anim.GetInteger("weaponStance") != 0 && canShoot && !singleFire)
+            else if (anim.GetInteger("weaponStance") != 0 && canShoot)
             {
                 if (anim.GetInteger("weaponStance") == 2)
                 {
-                    singleFire = true;
+                    click = true;
                 }
                 canShoot = false;
                 Fire();
@@ -149,7 +154,7 @@ public class PlayerController : MonoBehaviour
         }
         if (!Input.GetKey(KeyCode.Mouse0))
         {
-            singleFire = false;
+            click = false;
             selected = false;
         }
     }
@@ -198,13 +203,24 @@ public class PlayerController : MonoBehaviour
     void faceMouse()
     {
         Vector3 mousePosition = Input.mousePosition;
-        mousePosition = cam.ScreenToWorldPoint(mousePosition);
 
-        Vector2 direction = new Vector2(
-            mousePosition.x - transform.position.x,
-            mousePosition.y - transform.position.y
-        );
-        transform.up = direction;
+        if (UI.activeSelf)
+        {
+            Vector2 direction = new Vector2(
+                mousePosition.x - uiPlayer.transform.position.x,
+                mousePosition.y - uiPlayer.transform.position.y
+                );
+            uiPlayer.transform.up = direction;
+        }
+        else
+        {
+            mousePosition = cam.ScreenToWorldPoint(mousePosition);
+            Vector2 direction = new Vector2(
+                mousePosition.x - transform.position.x,
+                mousePosition.y - transform.position.y
+                );
+            transform.up = direction;
+        }
     }
 
     void Interact()
@@ -248,7 +264,7 @@ public class PlayerController : MonoBehaviour
         if (hit)
         {
             canShoot = true;
-            singleFire = false;
+            click = false;
         }
         else
         {
@@ -288,7 +304,7 @@ public class PlayerController : MonoBehaviour
             else
             {
                 canShoot = true;
-                singleFire = false;
+                click = false;
             }
         }
     }
