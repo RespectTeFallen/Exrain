@@ -40,14 +40,17 @@ public class InventorySlot : MonoBehaviour
 
     public void PointerEnter()
     {
-        Inventory.instance.dataField.transform.position = Input.mousePosition;
-        Inventory.instance.dataField.GetComponentInChildren<TextMeshProUGUI>().text = item.itemName;
-        Inventory.instance.dataField.SetActive(true);
+        if (item.itemID != 0)
+        {
+            Inventory.instance.dataField.transform.position = new Vector2(transform.position.x + 20, transform.position.y - 20);
+            Inventory.instance.dataField.GetComponentInChildren<TextMeshProUGUI>().text = item.itemName;
+            Inventory.instance.dataField.SetActive(true);
+        }
     }
 
     public void PointerExit()
     {
-        Inventory.instance.dataField.SetActive(true);
+        Inventory.instance.dataField.SetActive(false);
     }
 
     public void Selected()

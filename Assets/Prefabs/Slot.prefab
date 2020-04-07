@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 869048765206845592}
   - component: {fileID: 8070413702818263735}
   - component: {fileID: 4901650137656451914}
-  - component: {fileID: 43313582943763747}
+  - component: {fileID: 3217370661802350241}
   m_Layer: 5
   m_Name: Slot
   m_TagString: Untagged
@@ -156,7 +156,7 @@ MonoBehaviour:
   Delete: {fileID: 8543345209926850239}
   itemCount: {fileID: 8233226151300421144}
   Icon: {fileID: 5009306557682484555}
---- !u!114 &43313582943763747
+--- !u!114 &3217370661802350241
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

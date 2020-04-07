@@ -26,6 +26,8 @@ public class PlayerController : MonoBehaviour
     public int ignoreMask;
     public TextMeshProUGUI fps;
     public List<AudioClip> soundEffects;
+    public GameObject ConsoleWindow;
+    public TMP_InputField consoleText;
 
     //Private Variables
     private Rigidbody2D rb;
@@ -56,8 +58,12 @@ public class PlayerController : MonoBehaviour
         faceMouse();
 
         //Get key input
-        keyInput();
-        Move();
+        Commands();
+        if (!ConsoleWindow.activeSelf)
+        {
+            keyInput();
+            Move();
+        }
     }
 
     void LateUpdate()
@@ -75,6 +81,21 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void Commands()
+    {
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            ConsoleWindow.SetActive(!ConsoleWindow.activeSelf);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Return) && ConsoleWindow.activeSelf)
+        {
+            string command = consoleText.text;
+            Console.instance.SendInput(command);
+            consoleText.text = "";
+        }
+    }
+
     void keyInput()
     {
 
@@ -82,20 +103,20 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetButtonDown("Inventory"))
         {
+            movement = Vector2.zero;
+            Inventory.updateInventory = !Inventory.updateInventory;
             UI.SetActive(!UI.activeSelf);
         }
-        if (!UI.activeSelf)
-        {
-            //Set movement values based on WASD input
-            movement.x = Input.GetAxis("Horizontal");
-            movement.y = Input.GetAxis("Vertical");
-            Inventory.updateInventory = false;
-        }
-        else
+
+        if (UI.activeSelf)
         {
             movement = Vector2.zero;
-            Inventory.updateInventory = true;
+            return;
         }
+        
+        //Set movement values based on WASD input
+        movement.x = Input.GetAxis("Horizontal");
+        movement.y = Input.GetAxis("Vertical");
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
@@ -124,7 +145,6 @@ public class PlayerController : MonoBehaviour
         //Sprinting
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            Inventory.instance.AddItem("nearby", new Item("ammo", 3, "gun ammo", 10, Item.ItemType.Equipment));
             audioSourcePlayer.Stop();
             Sprinting = true;
         }

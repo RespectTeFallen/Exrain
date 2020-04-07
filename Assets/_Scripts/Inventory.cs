@@ -17,7 +17,9 @@ public class Inventory : MonoBehaviour
         }
         instance = this;
     }
-    
+
+    //Inventory.instance.AddItem("nearby", new Item("ammo", 3, "gun ammo", 10, Item.ItemType.Equipment));
+
     public List<Item> inventory = new List<Item>();
     public List<Item> nearby = new List<Item>();
     public static bool updateInventory = false;
