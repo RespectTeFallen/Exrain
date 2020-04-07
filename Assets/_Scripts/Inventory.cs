@@ -6,6 +6,7 @@ using TMPro;
 
 public class Inventory : MonoBehaviour
 {
+    #region Singleton
     public static Inventory instance;
 
     private void Awake()
@@ -17,6 +18,7 @@ public class Inventory : MonoBehaviour
         }
         instance = this;
     }
+    #endregion
 
     //Inventory.instance.AddItem("nearby", new Item("ammo", 3, "gun ammo", 10, Item.ItemType.Equipment));
 

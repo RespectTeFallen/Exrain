@@ -6,6 +6,19 @@ using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
+    #region Singleton
+    public static PlayerController instance;
+
+    private void Awake()
+    {
+        if (instance != null)
+        {
+            return;
+        }
+        instance = this;
+    }
+    #endregion
+
     //Public Variables
     public GameObject UI;
     public GameObject uiPlayer;
@@ -86,6 +99,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F1))
         {
             ConsoleWindow.SetActive(!ConsoleWindow.activeSelf);
+            Console.instance.consoleText.ActivateInputField();
         }
 
         if (Input.GetKeyDown(KeyCode.Return) && ConsoleWindow.activeSelf)
@@ -104,8 +118,15 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButtonDown("Inventory"))
         {
             movement = Vector2.zero;
-            Inventory.updateInventory = !Inventory.updateInventory;
             UI.SetActive(!UI.activeSelf);
+            if (UI.activeSelf)
+            {
+                Inventory.updateInventory = true;
+            }
+            else
+            {
+                Inventory.updateInventory = false;
+            }
         }
 
         if (UI.activeSelf)

@@ -7,7 +7,7 @@ public class Lootable : MonoBehaviour
 
     public List<Item> loot = new List<Item>();
 
-    public string name;
+    public string lootName;
     public int lootID;
 
     private GameObject LootObject;
