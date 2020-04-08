@@ -12,8 +12,7 @@ public class InventorySlot : MonoBehaviour
     public Button Delete;
     public TextMeshProUGUI itemCount;
     public Image Icon;
-
-    private bool testForHover = false;
+    
     private Vector3 lastMousePos;
     
     public void SetSlot(Item it)

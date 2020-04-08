@@ -81,6 +81,15 @@ public class Console : MonoBehaviour
                 lastCommand.Add(command);
                 commandCount = lastCommand.Count;
                 break;
+            case "clear":
+                for (int i = 0; i < Inventory.instance.inventory.Count; i++)
+                {
+                    if (Inventory.instance.inventory[i].itemID != 0)
+                    {
+                        Inventory.instance.inventory[i] = new Item("empty", 0, "", 0, false, "", Item.ItemType.Null);
+                    }
+                }
+                return;
             case "reset":
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                 return;
@@ -95,7 +104,8 @@ public class Console : MonoBehaviour
             {
                 case "give":
                     consoleOutput.text = consoleOutput.text + "\ngive " + suffix + " " + value;
-                    Inventory.instance.AddItem("inventory", new Item(suffix, ItemDatabase.instance.itemList[suffix], "item " + suffix, int.Parse(value), "this is" + suffix, Item.ItemType.Item));
+                    Item itemPlace = ItemDatabase.instance.itemList[suffix];
+                    Inventory.instance.AddItem("inventory", new Item(itemPlace.itemName, itemPlace.itemID, itemPlace.itemDesc, int.Parse(value), itemPlace.itemStackable, itemPlace.itemData, itemPlace.itemType));
                     lastCommand.Add(command);
                     commandCount = lastCommand.Count;
                     return;

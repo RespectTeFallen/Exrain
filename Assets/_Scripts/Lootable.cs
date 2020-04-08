@@ -9,13 +9,17 @@ public class Lootable : MonoBehaviour
 
     public string lootName;
     public int lootID;
+    public int lootCount;
 
     private GameObject LootObject;
 
     void Start()
     {
         LootObject = GetComponent<GameObject>();
-        
+        for (int i = 0; i < Random.Range(1, lootCount); i++)
+        {
+            loot.Add(ItemDatabase.instance.items[Random.Range(0, ItemDatabase.instance.items.Count)]);
+        }
     }
 
 }

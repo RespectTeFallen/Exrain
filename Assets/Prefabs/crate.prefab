@@ -149,5 +149,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   loot: []
-  name: crate
+  lootName: crate
   lootID: 1
+  lootCount: 5

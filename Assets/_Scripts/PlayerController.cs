@@ -294,6 +294,27 @@ public class PlayerController : MonoBehaviour
                     StartCoroutine(enableDoor(hit.transform.gameObject));
                 }
             }
+            if (hit.transform.GetComponent<Lootable>() != null)
+            {
+                for (int x = 0; x < hit.transform.GetComponent<Lootable>().loot.Count; x++)
+                {
+                    int loopCount = hit.transform.GetComponent<Lootable>().loot.Count;
+                    Item itemPlace = hit.transform.GetComponent<Lootable>().loot[x];
+                    for (int i = 0; i < Inventory.instance.nearby.Count; i++)
+                    {
+                        if (Inventory.instance.nearby[i].itemID == 0)
+                        {
+                            Inventory.instance.nearby[i] = new Item(itemPlace.itemName, itemPlace.itemID, itemPlace.itemDesc, itemPlace.itemCount, itemPlace.itemStackable, itemPlace.itemData, itemPlace.itemType);
+                            loopCount--;
+                            if (loopCount == 0)
+                            {
+                                UI.SetActive(true);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

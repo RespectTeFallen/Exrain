@@ -54,11 +54,11 @@ public class Inventory : MonoBehaviour
 
         for (int i = 0; i < inventorySlots.Length; i++)
         {
-            inventory.Add(new Item("empty", 0, "", 0, "", Item.ItemType.Null));
+            inventory.Add(new Item("empty", 0, "", 0, false, "", Item.ItemType.Null));
         }
         for (int i = 0; i < nearbySlots.Length; i++)
         {
-            nearby.Add(new Item("empty", 0, "", 0, "", Item.ItemType.Null));
+            nearby.Add(new Item("empty", 0, "", 0, false, "", Item.ItemType.Null));
         }
         database = GameObject.FindGameObjectWithTag("ItemDatabase").GetComponent<ItemDatabase>();
         for (int i = 0; i < database.items.Count; i++)
@@ -71,20 +71,47 @@ public class Inventory : MonoBehaviour
     {
         if (name == "inventory")
         {
-            for (int i = 0; i < inventory.Count; i++)
+            if (!item.itemStackable && item.itemCount > 1)
             {
-                if (inventory[i].itemID == item.itemID)
+                int loopCount = item.itemCount;
+                item.itemCount = 1;
+                for (int x = 0; x < inventory.Count; x++)
                 {
-                    inventory[i] = new Item(item.itemName, item.itemID, item.itemDesc, inventory[i].itemCount + item.itemCount, item.itemData, item.itemType);
-                    return;
+                    if (inventory[x].itemID == 0)
+                    {
+                        inventory[x] = new Item(item.itemName, item.itemID, item.itemDesc, item.itemCount, item.itemStackable, item.itemData, item.itemType);
+                        loopCount--;
+                        if (loopCount == 0)
+                        {
+                            return;
+                        }
+                    }
                 }
             }
-            for (int i = 0; i < inventory.Count; i++)
+            else
             {
-                if (inventory[i].itemID == 0)
+                if (item.itemStackable)
                 {
-                    inventory[i] = item;
-                    return;
+                    for (int i = 0; i < inventory.Count; i++)
+                    {
+                        if (inventory[i].itemID == item.itemID && item.itemStackable)
+                        {
+                            inventory[i] = new Item(item.itemName, item.itemID, item.itemDesc, inventory[i].itemCount + item.itemCount, item.itemStackable, item.itemData, item.itemType);
+                            return;
+                        }
+                    }
+                }
+                for (int i = 0; i < inventory.Count; i++)
+                {
+                    if (inventory[i].itemID == 0)
+                    {
+                        inventory[i] = item;
+                        return;
+                    }
+                    else
+                    {
+                        Console.instance.consoleOutput.text = Console.instance.consoleOutput.text + "\nInventory full!";
+                    }
                 }
             }
         }
@@ -92,18 +119,32 @@ public class Inventory : MonoBehaviour
         {
             for (int i = 0; i < nearby.Count; i++)
             {
-                if (nearby[i].itemID == item.itemID)
+                if (nearby[i].itemID == item.itemID && item.itemStackable)
                 {
-                    nearby[i] = new Item(item.itemName, item.itemID, item.itemDesc, nearby[i].itemCount + item.itemCount, item.itemData, item.itemType);
+                    nearby[i] = new Item(item.itemName, item.itemID, item.itemDesc, nearby[i].itemCount + item.itemCount, item.itemStackable, item.itemData, item.itemType);
                     return;
                 }
             }
-            for (int i = 0; i < nearby.Count; i++)
+            if (!item.itemStackable && item.itemCount > 1)
             {
-                if (nearby[i].itemID == 0)
+                for (int i = 0; i < item.itemCount; i++)
                 {
-                    nearby[i] = item;
-                    return;
+                    if (nearby[i].itemID == 0)
+                    {
+                        nearby[i] = item;
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < nearby.Count; i++)
+                {
+                    if (nearby[i].itemID == 0)
+                    {
+                        nearby[i] = item;
+                        return;
+                    }
                 }
             }
         }
@@ -157,12 +198,12 @@ public class Inventory : MonoBehaviour
         if (inventory.Contains(item))
         {
             int index = inventory.IndexOf(item);
-            inventory[index] = new Item("empty", 0, "", 0, "", Item.ItemType.Null);
+            inventory[index] = new Item("empty", 0, "", 0, false, "", Item.ItemType.Null);
         }
         else if (nearby.Contains(item))
         {
             int index = nearby.IndexOf(item);
-            nearby[index] = new Item("empty", 0, "", 0, "", Item.ItemType.Null);
+            nearby[index] = new Item("empty", 0, "", 0, false, "", Item.ItemType.Null);
         }
     }
 
@@ -172,13 +213,13 @@ public class Inventory : MonoBehaviour
         {
             lastIndex = inventorySlots[inventory.IndexOf(item)];
             selected = lastIndex.item;
-            inventory[inventory.IndexOf(selected)] = new Item("empty", 0, "", 0, "", Item.ItemType.Null);
+            inventory[inventory.IndexOf(selected)] = new Item("empty", 0, "", 0, false, "", Item.ItemType.Null);
         }
         else if (nearby.Contains(item))
         {
             lastIndex = nearbySlots[nearby.IndexOf(item)];
             selected = lastIndex.item;
-            nearby[nearby.IndexOf(selected)] = new Item("empty", 0, "", 0, "", Item.ItemType.Null);
+            nearby[nearby.IndexOf(selected)] = new Item("empty", 0, "", 0, false, "", Item.ItemType.Null);
         }
     }
 
@@ -188,11 +229,11 @@ public class Inventory : MonoBehaviour
         {
             for (int i = 0; i < nearby.Count; i++)
             {
-                if (nearby[i].itemID == 0 || nearby[i].itemID == item.itemID)
+                if (nearby[i].itemID == 0 || (nearby[i].itemID == item.itemID && item.itemStackable))
                 {
-                    if (nearby[i].itemID == item.itemID)
+                    if (nearby[i].itemID == item.itemID && item.itemStackable)
                     {
-                        nearby[i] = new Item(item.itemName, item.itemID, item.itemDesc, nearby[i].itemCount + item.itemCount, item.itemData, item.itemType);
+                        nearby[i] = new Item(item.itemName, item.itemID, item.itemDesc, nearby[i].itemCount + item.itemCount, item.itemStackable, item.itemData, item.itemType);
                         break;
                     }
                     else
@@ -202,17 +243,17 @@ public class Inventory : MonoBehaviour
                     }
                 }
             }
-            inventory[inventory.IndexOf(item)] = new Item("empty", 0, "", 0, "", Item.ItemType.Null);
+            inventory[inventory.IndexOf(item)] = new Item("empty", 0, "", 0, false, "", Item.ItemType.Null);
         }
         else if (nearby.Contains(item))
         {
             for (int i = 0; i < inventory.Count; i++)
             {
-                if (inventory[i].itemID == 0 || inventory[i].itemID == item.itemID)
+                if (inventory[i].itemID == 0 || (inventory[i].itemID == item.itemID && item.itemStackable))
                 {
-                    if (inventory[i].itemID == item.itemID)
+                    if (inventory[i].itemID == item.itemID && item.itemStackable)
                     {
-                        inventory[i] = new Item(item.itemName, item.itemID, item.itemDesc, inventory[i].itemCount + item.itemCount, item.itemData, item.itemType);
+                        inventory[i] = new Item(item.itemName, item.itemID, item.itemDesc, inventory[i].itemCount + item.itemCount, item.itemStackable, item.itemData, item.itemType);
                         break;
                     }
                     else
@@ -222,7 +263,7 @@ public class Inventory : MonoBehaviour
                     }
                 }
             }
-            nearby[nearby.IndexOf(item)] = new Item("empty", 0, "", 0, "", Item.ItemType.Null);
+            nearby[nearby.IndexOf(item)] = new Item("empty", 0, "", 0, false, "", Item.ItemType.Null);
         }
     }
 
@@ -231,9 +272,9 @@ public class Inventory : MonoBehaviour
         if (inventory.Contains(item))
         {
             int index = inventory.IndexOf(item);
-            if (item.itemID == selected.itemID)
+            if (item.itemID == selected.itemID && item.itemStackable)
             {
-                inventory[index] = new Item(item.itemName, item.itemID, item.itemDesc, item.itemCount + selected.itemCount, item.itemData, item.itemType);
+                inventory[index] = new Item(item.itemName, item.itemID, item.itemDesc, item.itemCount + selected.itemCount, item.itemStackable, item.itemData, item.itemType);
                 selected = null;
                 lastIndex = null;
                 return;
@@ -260,9 +301,9 @@ public class Inventory : MonoBehaviour
         else if (nearby.Contains(item))
         {
             int index = nearby.IndexOf(item);
-            if (item.itemID == selected.itemID)
+            if (item.itemID == selected.itemID && item.itemStackable)
             {
-                nearby[index] = new Item(item.itemName, item.itemID, item.itemDesc, item.itemCount + selected.itemCount, item.itemData, item.itemType);
+                nearby[index] = new Item(item.itemName, item.itemID, item.itemDesc, item.itemCount + selected.itemCount, item.itemStackable, item.itemData, item.itemType);
                 selected = null;
                 lastIndex = null;
                 return;
