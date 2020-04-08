@@ -26,10 +26,29 @@ public class Console : MonoBehaviour
 
     public List<string> commandList;
 
+    private List<string> lastCommand = new List<string>();
+    private int commandCount;
+
     private string prefix;
     private string suffix;
     private string value;
     private int index;
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.UpArrow) && lastCommand.Count > 0 && commandCount > 0)
+        {
+            commandCount -= 1;
+            consoleText.text = lastCommand[commandCount];
+            consoleText.caretPosition = consoleText.text.Length;
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow) && lastCommand.Count > 1 && commandCount < lastCommand.Count - 1)
+        {
+            commandCount += 1;
+            consoleText.text = lastCommand[commandCount];
+            consoleText.caretPosition = consoleText.text.Length;
+        }
+    }
 
     public void SendInput(string command)
     {
@@ -38,14 +57,11 @@ public class Console : MonoBehaviour
             index = command.IndexOf(' ');
             prefix = command.Substring(0, index);
             suffix = command.Substring(index + 1);
-            Debug.Log(prefix + "prefix");
             if (suffix.Contains(" "))
             {
                 index = suffix.IndexOf(' ');
                 value = suffix.Substring(index + 1);
                 suffix = suffix.Substring(0, index);
-                Debug.Log(suffix + "suffix");
-                Debug.Log(value + "value");
             }
         }
         else
@@ -62,6 +78,8 @@ public class Console : MonoBehaviour
                 {
                     consoleOutput.text = consoleOutput.text + "\n" + commandList[i];
                 }
+                lastCommand.Add(command);
+                commandCount = lastCommand.Count;
                 break;
             case "reset":
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
@@ -76,8 +94,10 @@ public class Console : MonoBehaviour
             switch (prefix)
             {
                 case "give":
-                    consoleOutput.text = consoleOutput.text + "\ngive " + suffix + value;
-                    Inventory.instance.AddItem("inventory", new Item(suffix, 5, "item " + suffix, int.Parse(value), Item.ItemType.Item));
+                    consoleOutput.text = consoleOutput.text + "\ngive " + suffix + " " + value;
+                    Inventory.instance.AddItem("inventory", new Item(suffix, ItemDatabase.instance.itemList[suffix], "item " + suffix, int.Parse(value), "this is" + suffix, Item.ItemType.Item));
+                    lastCommand.Add(command);
+                    commandCount = lastCommand.Count;
                     return;
                 case "fps":
                     if (int.Parse(suffix) == 0)
@@ -91,12 +111,18 @@ public class Console : MonoBehaviour
                     else
                     {
                         consoleOutput.text = consoleOutput.text + "\nIncorrect input: " + command;
+                        lastCommand.Add(command);
+                        commandCount = lastCommand.Count;
                         return;
                     }
                     consoleOutput.text = consoleOutput.text + "\nfps " + suffix;
+                    lastCommand.Add(command);
+                    commandCount = lastCommand.Count;
                     return;
                 default:
                     consoleOutput.text = consoleOutput.text + "\nIncorrect input: " + command;
+                    lastCommand.Add(command);
+                    commandCount = lastCommand.Count;
                     return;
             }
         }

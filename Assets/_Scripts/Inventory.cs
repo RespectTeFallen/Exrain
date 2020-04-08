@@ -54,11 +54,11 @@ public class Inventory : MonoBehaviour
 
         for (int i = 0; i < inventorySlots.Length; i++)
         {
-            inventory.Add(new Item("empty", 0, "", 0, Item.ItemType.Null));
+            inventory.Add(new Item("empty", 0, "", 0, "", Item.ItemType.Null));
         }
         for (int i = 0; i < nearbySlots.Length; i++)
         {
-            nearby.Add(new Item("empty", 0, "", 0, Item.ItemType.Null));
+            nearby.Add(new Item("empty", 0, "", 0, "", Item.ItemType.Null));
         }
         database = GameObject.FindGameObjectWithTag("ItemDatabase").GetComponent<ItemDatabase>();
         for (int i = 0; i < database.items.Count; i++)
@@ -73,6 +73,14 @@ public class Inventory : MonoBehaviour
         {
             for (int i = 0; i < inventory.Count; i++)
             {
+                if (inventory[i].itemID == item.itemID)
+                {
+                    inventory[i] = new Item(item.itemName, item.itemID, item.itemDesc, inventory[i].itemCount + item.itemCount, item.itemData, item.itemType);
+                    return;
+                }
+            }
+            for (int i = 0; i < inventory.Count; i++)
+            {
                 if (inventory[i].itemID == 0)
                 {
                     inventory[i] = item;
@@ -82,6 +90,14 @@ public class Inventory : MonoBehaviour
         }
         if (name == "nearby")
         {
+            for (int i = 0; i < nearby.Count; i++)
+            {
+                if (nearby[i].itemID == item.itemID)
+                {
+                    nearby[i] = new Item(item.itemName, item.itemID, item.itemDesc, nearby[i].itemCount + item.itemCount, item.itemData, item.itemType);
+                    return;
+                }
+            }
             for (int i = 0; i < nearby.Count; i++)
             {
                 if (nearby[i].itemID == 0)
@@ -141,12 +157,12 @@ public class Inventory : MonoBehaviour
         if (inventory.Contains(item))
         {
             int index = inventory.IndexOf(item);
-            inventory[index] = new Item("empty", 0, "", 0, Item.ItemType.Null);
+            inventory[index] = new Item("empty", 0, "", 0, "", Item.ItemType.Null);
         }
         else if (nearby.Contains(item))
         {
             int index = nearby.IndexOf(item);
-            nearby[index] = new Item("empty", 0, "", 0, Item.ItemType.Null);
+            nearby[index] = new Item("empty", 0, "", 0, "", Item.ItemType.Null);
         }
     }
 
@@ -156,13 +172,57 @@ public class Inventory : MonoBehaviour
         {
             lastIndex = inventorySlots[inventory.IndexOf(item)];
             selected = lastIndex.item;
-            inventory[inventory.IndexOf(selected)] = new Item("empty", 0, "", 0, Item.ItemType.Null);
+            inventory[inventory.IndexOf(selected)] = new Item("empty", 0, "", 0, "", Item.ItemType.Null);
         }
         else if (nearby.Contains(item))
         {
             lastIndex = nearbySlots[nearby.IndexOf(item)];
             selected = lastIndex.item;
-            nearby[nearby.IndexOf(selected)] = new Item("empty", 0, "", 0, Item.ItemType.Null);
+            nearby[nearby.IndexOf(selected)] = new Item("empty", 0, "", 0, "", Item.ItemType.Null);
+        }
+    }
+
+    public void SwapItem(Item item)
+    {
+        if (inventory.Contains(item))
+        {
+            for (int i = 0; i < nearby.Count; i++)
+            {
+                if (nearby[i].itemID == 0 || nearby[i].itemID == item.itemID)
+                {
+                    if (nearby[i].itemID == item.itemID)
+                    {
+                        nearby[i] = new Item(item.itemName, item.itemID, item.itemDesc, nearby[i].itemCount + item.itemCount, item.itemData, item.itemType);
+                        break;
+                    }
+                    else
+                    {
+                        nearby[i] = item;
+                        break;
+                    }
+                }
+            }
+            inventory[inventory.IndexOf(item)] = new Item("empty", 0, "", 0, "", Item.ItemType.Null);
+        }
+        else if (nearby.Contains(item))
+        {
+            for (int i = 0; i < inventory.Count; i++)
+            {
+                if (inventory[i].itemID == 0 || inventory[i].itemID == item.itemID)
+                {
+                    if (inventory[i].itemID == item.itemID)
+                    {
+                        inventory[i] = new Item(item.itemName, item.itemID, item.itemDesc, inventory[i].itemCount + item.itemCount, item.itemData, item.itemType);
+                        break;
+                    }
+                    else
+                    {
+                        inventory[i] = item;
+                        break;
+                    }
+                }
+            }
+            nearby[nearby.IndexOf(item)] = new Item("empty", 0, "", 0, "", Item.ItemType.Null);
         }
     }
 
@@ -173,7 +233,7 @@ public class Inventory : MonoBehaviour
             int index = inventory.IndexOf(item);
             if (item.itemID == selected.itemID)
             {
-                inventory[index] = new Item(item.itemName, item.itemID, item.itemDesc, item.itemCount + selected.itemCount, item.itemType);
+                inventory[index] = new Item(item.itemName, item.itemID, item.itemDesc, item.itemCount + selected.itemCount, item.itemData, item.itemType);
                 selected = null;
                 lastIndex = null;
                 return;
@@ -202,7 +262,7 @@ public class Inventory : MonoBehaviour
             int index = nearby.IndexOf(item);
             if (item.itemID == selected.itemID)
             {
-                nearby[index] = new Item(item.itemName, item.itemID, item.itemDesc, item.itemCount + selected.itemCount, item.itemType);
+                nearby[index] = new Item(item.itemName, item.itemID, item.itemDesc, item.itemCount + selected.itemCount, item.itemData, item.itemType);
                 selected = null;
                 lastIndex = null;
                 return;
@@ -226,5 +286,15 @@ public class Inventory : MonoBehaviour
                 selected = null;
             }
         }
+    }
+
+    public void drawDataField(string ItemName, string Header, string Data)
+    {
+        dataField.GetComponentInChildren<TextMeshProUGUI>().text = 
+            "" + ItemName +
+            "\n" +
+            "\n" + Header +
+            "\n" + Data
+            ;
     }
 }

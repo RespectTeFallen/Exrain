@@ -22,11 +22,13 @@ public class ItemDatabase : MonoBehaviour
 
     public List<Item> items = new List<Item>();
 
+    public Dictionary<string, int> itemList = new Dictionary<string, int>();
+
     public void AddItems()
     {
-        for (int i = 1; i <= 2; i++)
+        for (int i = 0; i < items.Count; i++)
         {
-            items.Add(new Item("test" + i, 1, "test item", 1, Item.ItemType.Item));
+            itemList.Add(items[i].itemName, items[i].itemID);
         }
     }
 

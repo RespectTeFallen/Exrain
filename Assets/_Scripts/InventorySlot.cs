@@ -13,6 +13,8 @@ public class InventorySlot : MonoBehaviour
     public TextMeshProUGUI itemCount;
     public Image Icon;
 
+    private bool testForHover = false;
+    private Vector3 lastMousePos;
     
     public void SetSlot(Item it)
     {
@@ -42,8 +44,7 @@ public class InventorySlot : MonoBehaviour
     {
         if (item.itemID != 0)
         {
-            Inventory.instance.dataField.transform.position = new Vector2(transform.position.x + 20, transform.position.y - 20);
-            Inventory.instance.dataField.GetComponentInChildren<TextMeshProUGUI>().text = item.itemName;
+            Inventory.instance.drawDataField(item.itemName, item.itemDesc, item.itemData);
             Inventory.instance.dataField.SetActive(true);
         }
     }
@@ -59,16 +60,25 @@ public class InventorySlot : MonoBehaviour
         {
             if (Inventory.instance.selected == null)
             {
-                Inventory.instance.SelectItem(item);
+                if (Input.GetKey(KeyCode.LeftShift))
+                {
+                    Inventory.instance.SwapItem(item);
+                }
+                else
+                {
+                    Inventory.instance.SelectItem(item);
+                }
             }
             else
             {
                 Inventory.instance.PlaceItem(item);
+                Invoke("PointerEnter", 0.1f);
             }
         }
         else if(Inventory.instance.selected != null)
         {
             Inventory.instance.PlaceItem(item);
+            Invoke("PointerEnter", 0.1f);
         }
     }
 
@@ -79,5 +89,4 @@ public class InventorySlot : MonoBehaviour
             Inventory.instance.RemoveItem(item);
         }
     }
-
 }

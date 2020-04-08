@@ -15,9 +15,7 @@ public class Lootable : MonoBehaviour
     void Start()
     {
         LootObject = GetComponent<GameObject>();
-
-
-
+        
     }
 
 }

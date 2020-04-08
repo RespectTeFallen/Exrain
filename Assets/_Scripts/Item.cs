@@ -9,6 +9,7 @@ public class Item
     public int itemID;
     public string itemDesc;
     public int itemCount;
+    public string itemData;
     public Sprite icon;
     public ItemType itemType;
 
@@ -20,12 +21,13 @@ public class Item
         Null
     }
 
-    public Item(string name, int id, string desc, int count, ItemType type)
+    public Item(string name, int id, string desc, int count, string data, ItemType type)
     {
         itemName = name;
         itemID = id;
         itemDesc = desc;
         itemCount = count;
+        itemData = data;
         icon = Resources.Load<Sprite>("ItemIcons/" + itemName);
         itemType = type;
     }
